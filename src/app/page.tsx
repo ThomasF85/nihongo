@@ -76,6 +76,7 @@ function Game({ onEnd }: { onEnd: () => void }) {
           text="not yet"
           onClick={() => {
             setCurrent((prev) => prev + 1);
+            setFlipped(false);
             setResults((prev) => [
               ...prev,
               { _id: vocabs[current]._id, result: false },
@@ -88,6 +89,7 @@ function Game({ onEnd }: { onEnd: () => void }) {
           text="got it"
           onClick={() => {
             setCurrent((prev) => prev + 1);
+            setFlipped(false);
             setResults((prev) => [
               ...prev,
               { _id: vocabs[current]._id, result: true },
