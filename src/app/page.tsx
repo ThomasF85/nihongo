@@ -43,6 +43,7 @@ function Game({ onEnd }: { onEnd: () => void }) {
   const [vocabs, setVocabs] = useState<Vocab[]>([]);
   const [current, setCurrent] = useState<number>(0);
   const [results, setResults] = useState<Result[]>([]);
+  const [flipped, setFlipped] = useState<boolean>(false);
 
   useEffect(() => {
     getVocabs().then((vocabs) => {
@@ -63,9 +64,15 @@ function Game({ onEnd }: { onEnd: () => void }) {
 
   return (
     <>
-      <Card key={current} vocab={vocabs[current]} />
+      <Card
+        flipped={flipped}
+        toggleFlipped={() => setFlipped((prev) => !prev)}
+        key={current}
+        vocab={vocabs[current]}
+      />
       <div className={styles.buttons}>
         <Button
+          disabled={!flipped}
           text="not yet"
           onClick={() => {
             setCurrent((prev) => prev + 1);
@@ -77,6 +84,7 @@ function Game({ onEnd }: { onEnd: () => void }) {
           secondary
         />
         <Button
+          disabled={!flipped}
           text="got it"
           onClick={() => {
             setCurrent((prev) => prev + 1);

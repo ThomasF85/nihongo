@@ -12,7 +12,7 @@ export async function GET() {
   const allVocabsWithWeight: ServerVocabWithWeight[] = allVocabs.map(
     withExponentialWeight
   );
-  const vocabs = select(allVocabsWithWeight, 3);
+  const vocabs = select(allVocabsWithWeight, 15);
   return NextResponse.json({
     vocabs: vocabs.map(toVocab),
   });

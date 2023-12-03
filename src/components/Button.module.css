@@ -14,3 +14,9 @@
 .secondary {
   background-color: #ff9800;
 }
+
+.disabled {
+  background-color: #eaeaea;
+  color: #999;
+  cursor: not-allowed;
+}

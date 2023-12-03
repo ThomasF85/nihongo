@@ -4,14 +4,21 @@ export default function Button({
   text,
   onClick,
   secondary,
+  disabled,
 }: {
   text: string;
   onClick: () => void;
+  disabled?: boolean;
   secondary?: boolean;
 }) {
   return (
     <button
-      className={styles.button + (secondary ? " " + styles.secondary : "")}
+      disabled={disabled}
+      className={
+        styles.button +
+        (secondary ? " " + styles.secondary : "") +
+        (disabled ? " " + styles.disabled : "")
+      }
       onClick={onClick}
     >
       {text}
