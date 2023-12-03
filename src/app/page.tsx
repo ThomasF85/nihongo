@@ -6,6 +6,7 @@ import { Result } from "@/domain/Result";
 import { Vocab } from "@/domain/Vocab";
 import { useEffect, useState } from "react";
 import styles from "./page.module.css";
+import { on } from "events";
 
 export default function Home() {
   const [running, setRunning] = useState<boolean>(false);
@@ -34,8 +35,7 @@ async function sendResults(results: Result[]) {
     },
     body: JSON.stringify(results),
   });
-  const result = await response.json();
-  alert(JSON.stringify(result));
+  await response.json();
 }
 
 function Game({ onEnd }: { onEnd: () => void }) {
@@ -57,9 +57,10 @@ function Game({ onEnd }: { onEnd: () => void }) {
   }
 
   if (current >= vocabs.length) {
-    sendResults(results);
-    onEnd();
-    return;
+    sendResults(results).then(() => {
+      onEnd();
+    });
+    return <div>done</div>;
   }
 
   return (
