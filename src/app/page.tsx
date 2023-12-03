@@ -1,95 +1,92 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+"use client";
+
+import Button from "@/components/Button";
+import Card from "@/components/Card";
+import { Result } from "@/domain/Result";
+import { Vocab } from "@/domain/Vocab";
+import { useEffect, useState } from "react";
+import styles from "./page.module.css";
 
 export default function Home() {
+  const [running, setRunning] = useState<boolean>(false);
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
+    <>
+      {running ? (
+        <Game onEnd={() => setRunning(false)} />
+      ) : (
+        <Button text="start game" onClick={() => setRunning(true)} />
+      )}
+    </>
+  );
+}
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
+async function getVocabs(): Promise<Vocab[]> {
+  const response = await fetch("/api/vocabs");
+  const result = await response.json();
+  return result.vocabs;
+}
+
+async function sendResults(results: Result[]) {
+  const response = await fetch("/api/vocabs", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(results),
+  });
+  const result = await response.json();
+  alert(JSON.stringify(result));
+}
+
+function Game({ onEnd }: { onEnd: () => void }) {
+  const [loading, setLoading] = useState<boolean>(true);
+  const [vocabs, setVocabs] = useState<Vocab[]>([]);
+  const [current, setCurrent] = useState<number>(0);
+  const [results, setResults] = useState<Result[]>([]);
+
+  useEffect(() => {
+    getVocabs().then((vocabs) => {
+      setVocabs(vocabs);
+      setLoading(false);
+    });
+  }, []);
+
+  if (loading) {
+    return <div>loading</div>;
+  }
+
+  if (current >= vocabs.length) {
+    sendResults(results);
+    onEnd();
+    return;
+  }
+
+  return (
+    <>
+      <Card key={current} vocab={vocabs[current]} />
+      <div className={styles.buttons}>
+        <Button
+          text="not yet"
+          onClick={() => {
+            setCurrent((prev) => prev + 1);
+            setResults((prev) => [
+              ...prev,
+              { _id: vocabs[current]._id, result: false },
+            ]);
+          }}
+          secondary
+        />
+        <Button
+          text="got it"
+          onClick={() => {
+            setCurrent((prev) => prev + 1);
+            setResults((prev) => [
+              ...prev,
+              { _id: vocabs[current]._id, result: true },
+            ]);
+          }}
         />
       </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  )
+    </>
+  );
 }
